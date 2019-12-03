@@ -6,6 +6,7 @@ module.exports = app => {
       hidePoweredBy: { setTo: 'PHP 4.2.0' },
       frameguard: { action: 'sameorigin' },
       noCache: true,
+      referrerPolicy: { policy: 'same-origin' },
       contentSecurityPolicy: {
         directives: {
           defaultSrc: ["'self'"],
