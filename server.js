@@ -9,6 +9,10 @@ var apiRoutes = require('./routes/api.js');
 var fccTestingRoutes = require('./routes/fcctesting.js');
 var runner = require('./test-runner');
 
+
+import { connectDb } from './models';
+
+
 var app = express();
 
 require('./helmet.js')(app);
@@ -50,21 +54,26 @@ app.use(function(req, res, next) {
     .send('Not Found');
 });
 
-//Start our server and tests!
-app.listen(process.env.PORT || 3000, function() {
-  console.log('Listening on port ' + process.env.PORT);
-  if (process.env.NODE_ENV === 'test') {
-    console.log('Running Tests...');
-    setTimeout(function() {
-      try {
-        runner.run();
-      } catch (e) {
-        var error = e;
-        console.log('Tests are not valid:');
-        console.log(error);
-      }
-    }, 1500);
-  }
+
+connectDb().then(async () => {
+  //Start our server and tests!
+  app.listen(process.env.PORT || 3000, function() {
+    console.log('Listening on port ' + process.env.PORT);
+    if (process.env.NODE_ENV === 'test') {
+      console.log('Running Tests...');
+      setTimeout(function() {
+        try {
+          runner.run();
+        } catch (e) {
+          var error = e;
+          console.log('Tests are not valid:');
+          console.log(error);
+        }
+      }, 1500);
+    }
+  });
+
 });
+
 
 module.exports = app; //for testing

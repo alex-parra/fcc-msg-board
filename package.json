@@ -7,7 +7,7 @@
   "description": "What am I about?",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node -r esm server.js"
   },
   "dependencies": {
     "express": "^4.17.1",
@@ -18,10 +18,12 @@
     "chai-http": "^4.3.0",
     "mocha": "^6.2.1",
     "zombie": "^6.1.4",
-    "helmet": "^3.21.2"
+    "helmet": "^3.21.2",
+    "mongoose": "^5.7.13",
+    "esm": "^3.2.25"
   },
   "engines": {
-    "node": "4.4.3"
+    "node": "12.13.1"
   },
   "repository": {
     "type": "git",
