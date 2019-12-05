@@ -1,6 +1,8 @@
 import models from '../models';
 import threadResource from '../resources/thread';
 
+import { hashPass, comparePass } from '../services/hashPassword';
+
 /*
   Get entire thread
   req.query { thread_id }
@@ -28,7 +30,8 @@ const store = async (req, res, next) => {
     const board = await models.Board.bySlug(slug);
     if (!board) throw 'Invalid board slug';
 
-    const { thread_id, text, delete_password } = req.body;
+    const { thread_id, text } = req.body;
+    let { delete_password } = req.body;
 
     const thread = await models.Thread.findById(thread_id);
     if (!thread) throw 'Invalid thread id.';
@@ -36,6 +39,7 @@ const store = async (req, res, next) => {
     if (text.length < 6) throw 'Reply message text is required and must be at least 6 characters.';
     if (delete_password.length < 6) throw 'Reply message deletePassword is required and must be at least 6 characters.';
 
+    delete_password = await hashPass(delete_password);
     const reply = await models.Reply.create({ text, delete_password, thread: thread.id });
     await thread.update({ replies: [...thread.replies, reply] });
 
@@ -51,7 +55,21 @@ const store = async (req, res, next) => {
   action set reply.reported to true
   resp: 'success'
  */
-const report = async (req, res, next) => res.json('report');
+const report = async (req, res, next) => {
+  try {
+    const slug = req.params.board;
+    const board = await models.Board.bySlug(slug);
+    if (!board) throw 'Invalid board slug';
+
+    const { thread_id, reply_id } = req.body;
+    const r = await models.Reply.findByIdAndUpdate(reply_id, { reported: true }, { new: true });
+    if (!r) throw 'Invalid reply id.';
+
+    return res.json('success');
+  } catch (error) {
+    next(error);
+  }
+};
 
 /*
   Delete reply
@@ -59,7 +77,26 @@ const report = async (req, res, next) => res.json('report');
   action: set reply.text to '[deleted]'
   resp: 'incorrect password' | 'success'
  */
-const destroy = async (req, res, next) => res.json('destroy');
+const destroy = async (req, res, next) => {
+  try {
+    const slug = req.params.board;
+    const board = await models.Board.bySlug(slug);
+    if (!board) throw 'Invalid board slug';
+
+    const { thread_id, reply_id, delete_password } = req.body;
+    const reply = await models.Reply.findById(reply_id);
+    if (!reply) throw 'Invalid reply id.';
+
+    const validPassword = await comparePass(delete_password, reply.delete_password);
+    if (!validPassword) throw 'Not authorized.';
+
+    const r = await reply.update({ text: '[deleted]' }, { new: true });
+
+    return res.json('success');
+  } catch (error) {
+    next(error);
+  }
+};
 
 export default {
   index,
