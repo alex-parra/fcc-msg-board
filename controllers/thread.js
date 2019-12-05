@@ -84,8 +84,7 @@ const destroy = async (req, res, next) => {
     const validPassword = await comparePass(delete_password, thread.delete_password);
     if (!validPassword) return res.status(400).send('incorrect password');
 
-    const r = await models.Thread.findByIdAndRemove(thread._id);
-    await board.update({ threads: board.threads.filter(t => t._id !== thread._id) });
+    const r = await thread.remove();
 
     return res.send('success');
   } catch (error) {
