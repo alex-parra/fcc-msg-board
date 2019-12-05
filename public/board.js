@@ -18,7 +18,7 @@ $(function() {
         var thread = ['<div class="thread">'];
         thread.push('<div class="main">');
         thread.push('<p class="id">id: ' + ele._id + ' (' + ele.created_on + ')</p>');
-        thread.push('<form id="reportThread"><input type="hidden" name="report_id" value="' + ele._id + '"><input type="submit" value="Report"></form>');
+        thread.push('<form id="reportThread"><input type="hidden" name="thread_id" value="' + ele._id + '"><input type="submit" value="Report"></form>');
         thread.push(
           '<form id="deleteThread"><input type="hidden" value="' +
             ele._id +
