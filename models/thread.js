@@ -10,8 +10,10 @@ const ThreadSchema = new mongoose.Schema({
   timestamps: true,
 });
 
-ThreadSchema.pre('remove', function(next) {
-  this.model('Reply').deleteMany({ thread: this._id }, next);
+ThreadSchema.pre('remove', async function(next) {
+  await this.model('Reply').deleteMany({ thread: this._id });
+  await this.model('Board').update({_id: this.board}, {$pull: {threads: this._id}});
+  return next();
 });
 
 export default mongoose.model('Thread', ThreadSchema);
