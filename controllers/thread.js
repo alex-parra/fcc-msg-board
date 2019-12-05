@@ -1,6 +1,8 @@
 import models from '../models';
 import threadResource from '../resources/thread';
 
+import { hashPass, comparePass } from '../services/hashPassword';
+
 /*
   Get 10 threads by bumped_on each with 3 most recent replies
   resp: [{ ...thread[-reported, -delete_password] }]
@@ -25,11 +27,12 @@ const store = async (req, res, next) => {
     if (slug.length < 2) throw 'Board slug must be at least 2 characters.';
     if (/[^\w\d]/.test(slug)) throw 'Board slug has invalid characters.';
 
-    const { text, delete_password } = req.body;
+    let { text, delete_password } = req.body;
 
     if (text.length < 6) throw 'Thread message text is required and must be at least 6 characters.';
     if (delete_password.length < 6) throw 'Thread message deletePassword is required and must be at least 6 characters.';
 
+    delete_password = await hashPass(delete_password);
     const board = await models.Board.bySlug(slug, true);
     const thread = await models.Thread.create({ text, delete_password, board: board.id });
     await board.update({ threads: [...board.threads, thread] });
@@ -77,10 +80,13 @@ const destroy = async (req, res, next) => {
 
     const thread = await models.Thread.findById(thread_id);
     if (!thread) throw 'Invalid thread id.';
-    if (thread.delete_password !== delete_password) return res.status(400).send('incorrect password');
+
+    const validPassword = await comparePass(delete_password, thread.delete_password);
+    if (!validPassword) return res.status(400).send('incorrect password');
 
     const r = await models.Thread.findByIdAndRemove(thread._id);
     await board.update({ threads: board.threads.filter(t => t._id !== thread._id) });
+
     return res.send('success');
   } catch (error) {
     next(error);
