@@ -2,8 +2,6 @@
 
 import threadController from '../controllers/thread';
 import replyController from '../controllers/reply';
-import models from '../models';
-import threadResource from '../resources/thread';
 
 module.exports = function(app) {
   app

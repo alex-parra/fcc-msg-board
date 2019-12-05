@@ -51,7 +51,21 @@ const store = async (req, res, next) => {
   action set reply.reported to true
   resp: 'success'
  */
-const report = async (req, res, next) => res.json('report');
+const report = async (req, res, next) => {
+  try {
+    const slug = req.params.board;
+    const board = await models.Board.bySlug(slug);
+    if (!board) throw 'Invalid board slug';
+
+    const { thread_id, reply_id } = req.body;
+    const r = await models.Reply.findByIdAndUpdate(reply_id, { reported: true }, { new: true });
+    if (!r) throw 'Invalid reply id.';
+
+    return res.json('success');
+  } catch (error) {
+    next(error);
+  }
+};
 
 /*
   Delete reply
@@ -59,7 +73,25 @@ const report = async (req, res, next) => res.json('report');
   action: set reply.text to '[deleted]'
   resp: 'incorrect password' | 'success'
  */
-const destroy = async (req, res, next) => res.json('destroy');
+const destroy = async (req, res, next) => {
+  try {
+    const slug = req.params.board;
+    const board = await models.Board.bySlug(slug);
+    if (!board) throw 'Invalid board slug';
+
+    const { thread_id, reply_id, delete_password } = req.body;
+    const reply = await models.Reply.findById(reply_id);
+    if (!reply) throw 'Invalid reply id.';
+    if( reply.delete_password !== delete_password ) throw 'Not authorized.';
+    
+    const r = await reply.update({ text: '[deleted]' }, { new: true });
+
+    return res.json('success');
+    
+  } catch (error) {
+    next(error);
+  }
+};
 
 export default {
   index,
