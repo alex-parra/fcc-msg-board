@@ -36,10 +36,14 @@ const store = async (req, res, next) => {
     const board = await models.Board.bySlug(slug, true);
     const thread = await models.Thread.create({ text, delete_password, board: board.id });
     await board.update({ threads: [...board.threads, thread] });
+    
+    if( ! req.is('json') ) return res.redirect(`/b/${board.slug}/`);
 
-    return req.xhr ? res.redirect(`/api/threads/${board.slug}/`) : res.redirect(`/b/${board.slug}/`);
+    const data = await threadResource(thread);
+    return res.json(data);
+    
   } catch (error) {
-    next(error);
+    return res.status(400).json(error.message || error);
   }
 };
 
@@ -57,9 +61,9 @@ const report = async (req, res, next) => {
     const r = await models.Thread.findByIdAndUpdate(thread_id, { reported: true }, { new: true });
     if (!r) throw 'Invalid thread id.';
 
-    return res.json('success');
+    return res.send('success');
   } catch (error) {
-    next(error);
+    return res.status(400).json(error.message || error);
   }
 };
 
@@ -88,7 +92,7 @@ const destroy = async (req, res, next) => {
 
     return res.send('success');
   } catch (error) {
-    next(error);
+    return res.status(400).json(error.message || error);
   }
 };
 

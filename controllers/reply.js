@@ -16,7 +16,7 @@ const index = async (req, res, next) => {
 
     return res.json(await threadResource(thread));
   } catch (error) {
-    next(error);
+    return res.status(400).json(error.message || error);
   }
 };
 
@@ -45,7 +45,7 @@ const store = async (req, res, next) => {
 
     return req.xhr ? res.redirect(`/api/threads/${board.slug}/?thread=${thread.id}`) : res.redirect(`/b/${board.slug}/${thread.id}`);
   } catch (error) {
-    next(error);
+    return res.status(400).json(error.message || error);
   }
 };
 
@@ -67,7 +67,7 @@ const report = async (req, res, next) => {
 
     return res.json('success');
   } catch (error) {
-    next(error);
+    return res.status(400).json(error.message || error);
   }
 };
 
@@ -94,7 +94,7 @@ const destroy = async (req, res, next) => {
 
     return res.json('success');
   } catch (error) {
-    next(error);
+    return res.status(400).json(error.message || error);
   }
 };
 
