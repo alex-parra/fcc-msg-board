@@ -9,6 +9,19 @@
 var chai = require('chai');
 var assert = chai.assert;
 
+import { hashPass, comparePass } from '../services/hashPassword';
+
 suite('Unit Tests', function(){
 
+  describe('services/hashPassword', function() {
+    
+    it('hashes', async () => {
+      const pass = '4n23k4j2kl342';
+      const hashed = await hashPass(pass);
+      const valid = await comparePass(pass, hashed);
+      assert.isTrue(valid);
+    });
+    
+  });
+  
 });
