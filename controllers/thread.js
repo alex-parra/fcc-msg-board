@@ -8,11 +8,15 @@ import { hashPass, comparePass } from '../services/hashPassword';
   resp: [{ ...thread[-reported, -delete_password] }]
  */
 const index = async (req, res) => {
-  const slug = req.params.board;
-  const board = await models.Board.bySlug(slug);
-  await board.populate('threads').execPopulate();
-  const threads = await threadResource(board.threads);
-  return res.json(threads);
+  try {
+    const slug = req.params.board;
+    const board = await models.Board.bySlug(slug);
+    await board.populate('threads').execPopulate();
+    const threads = await threadResource(board.threads);
+    return res.json(threads);
+  } catch( error ) {
+    return res.status(400).json(error.message || error);
+  }
 };
 
 /*

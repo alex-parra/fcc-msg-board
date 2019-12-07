@@ -20,6 +20,12 @@ const createTestThread = () => {
     .send(testThread);
 }
 
+const createTestReply = threadId => {
+  return chai.request(server)
+    .post('/api/replies/general')
+    .send({ thread_id: threadId, text: 'Some reply', delete_password: 'myUnguessablePassword' })
+}
+
 suite('Functional Tests', function() {
 
   suite('API ROUTING FOR /api/threads/:board', function() {
@@ -61,7 +67,7 @@ suite('Functional Tests', function() {
     });
     
     suite('GET', function() {
-      test('Get threads', () => {
+      test('Get threads', async () => {
         return chai.request(server)
           .get('/api/threads/general')
           .then(res => {
@@ -124,11 +130,40 @@ suite('Functional Tests', function() {
   suite('API ROUTING FOR /api/replies/:board', function() {
     
     suite('POST', function() {
-      
+      test('Reply to a thread', async () => {
+        const res = await createTestThread();
+        return chai.request(server)
+          .post('/api/replies/general')
+          .send({ thread_id: res.body._id, text: 'Some reply', delete_password: 'myUnguessablePassword' })
+          .then(res => {
+            assert(res.status, 200);
+            assert.isObject(res.body);
+            assert.property(res.body, '_id');
+            assert.notProperty(res.body, 'delete_password');
+            assert.notProperty(res.body, 'reported');
+            assert.isArray(res.body.replies);
+            assert.isAtLeast(res.body.replies.length, 1); 
+          });
+      })
     });
     
     suite('GET', function() {
-      
+      test('Get full thread', async () => {
+        const { body: thread } = await createTestThread();
+        const { body: reply } = await createTestReply(thread._id);
+        return chai.request(server)
+          .get('/api/replies/general')
+          .query({ thread_id: thread._id })
+          .then(({status, body}) => {
+            assert.equal(status, 200);
+            assert.isObject(body);
+            assert.property(body, '_id');
+            assert.notProperty(body, 'reported');
+            assert.notProperty(body, 'delete_password');
+            assert.isArray(body.replies);
+            assert.equal(body.replies.length, 1); 
+          });
+      });
     });
     
     suite('PUT', function() {
