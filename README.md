@@ -1,11 +1,10 @@
-**FreeCodeCamp**- Information Security and Quality Assurance
-------
+# freeCodeCamp - Information Security and Quality Assurance
 
-Project Anon Message Board
+## Project Anon Message Board - [more info](https://www.freecodecamp.org/learn/information-security-and-quality-assurance/information-security-and-quality-assurance-projects/anonymous-message-board)  
 
-1) SET NODE_ENV to `test` without quotes when ready to write tests and DB to your databases connection string (in .env)
-2) Recomended to create controllers/handlers and handle routing in routes/api.js
-3) You will add any security features to `server.js`
-4) You will create all of the functional/unit tests in `tests/2_functional-tests.js` and `tests/1_unit-tests.js` but only functional will be tested
+Goal of this project is to implement an API in Node.js running on Express.  
+Data is stored in Mongodb at Mongo Atlas via Mongoose.  
 
+Live at https://alex-parra-fcc-msg-board.glitch.me
 
+Started on 2019-11-30  
