@@ -41,9 +41,12 @@ const store = async (req, res, next) => {
 
     delete_password = await hashPass(delete_password);
     const reply = await models.Reply.create({ text, delete_password, thread: thread.id });
-    await thread.update({ replies: [...thread.replies, reply] });
+    const threadUpdated = await models.Thread.findByIdAndUpdate(thread._id, { replies: [...thread.replies, reply] }, { new: true });
 
-    return req.xhr ? res.redirect(`/api/threads/${board.slug}/?thread=${thread.id}`) : res.redirect(`/b/${board.slug}/${thread.id}`);
+    if( ! req.is('json') ) res.redirect(`/b/${board.slug}/${thread.id}`);
+    
+    const data = await threadResource(threadUpdated);
+    return res.json(data);
   } catch (error) {
     return res.status(400).json(error.message || error);
   }
