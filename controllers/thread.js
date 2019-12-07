@@ -7,12 +7,14 @@ import { hashPass, comparePass } from '../services/hashPassword';
   Get 10 threads by bumped_on each with 3 most recent replies
   resp: [{ ...thread[-reported, -delete_password] }]
  */
-const index = async (req, res) => {
+const index = async (req, res) => {  
   try {
     const slug = req.params.board;
-    const board = await models.Board.bySlug(slug);
-    await board.populate('threads').execPopulate();
+    const board = await models.Board.bySlug(slug).populate({path: 'threads', populate: { path: 'replies'}});
+    if( !board ) throw 'Unknown board';
+    
     const threads = await threadResource(board.threads);
+    
     return res.json(threads);
   } catch( error ) {
     return res.status(400).json(error.message || error);

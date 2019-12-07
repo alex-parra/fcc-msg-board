@@ -1,7 +1,6 @@
 import replyResource from './reply';
 
 const toPlain = async thread => {
-  await thread.populate('replies').execPopulate();
   return {
     _id: thread._id,
     boardId: thread.board,

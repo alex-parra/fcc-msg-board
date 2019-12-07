@@ -11,7 +11,7 @@ import { hashPass, comparePass } from '../services/hashPassword';
 const index = async (req, res, next) => {
   try {
     const { thread_id } = req.query;
-    const thread = await models.Thread.findById(thread_id);
+    const thread = await models.Thread.findById(thread_id).populate('replies');
     if (!thread) throw 'Invalid thread id.';
 
     return res.json(await threadResource(thread));

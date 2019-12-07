@@ -10,7 +10,7 @@ const BoardSchema = new mongoose.Schema({
 
 BoardSchema.statics.bySlug = function(slug, upsert = false) {
   const titleFromSlug = slug[0].toUpperCase() + slug.substring(1);
-  return this.findOneAndUpdate({slug}, {title: titleFromSlug}, {upsert, new: true, setDefaultsOnInsert: true});
+  return this.findOneAndUpdate({slug}, {title: titleFromSlug}, {upsert, new: true, setDefaultsOnInsert: true, useFindAndModify: false});
 }
 
 BoardSchema.pre('remove', function(next) {
